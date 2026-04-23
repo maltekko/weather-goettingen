@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wetter Göttingen – JobCloud</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── JobCloud Design Tokens ── */
+    :root {
+      --jc-teal:        #00829a;
+      --jc-teal-dark:   #006478;
+      --jc-teal-light:  #e5f2f4;
+      --jc-purple:      #93559e;
+      --jc-navy:        #313751;
+      --jc-navy-muted:  rgba(49,55,81,0.6);
+      --jc-bg:          #fafafa;
+      --jc-white:       #ffffff;
+      --jc-border:      #e8eaed;
+      --jc-text:        #313751;
+      --jc-text-muted:  rgba(49,55,81,0.55);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Open Sans", sans-serif;
+      background: var(--jc-bg);
+      color: var(--jc-text);
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--jc-navy);
+      height: 4px;
+    }
+
+    /* ── Header / Nav ── */
+    .navbar {
+      background: var(--jc-white);
+      border-bottom: 1px solid var(--jc-border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      box-shadow: 0 1px 4px rgba(49,55,81,0.08);
+    }
+
+    .navbar-logo img {
+      height: 32px;
+      display: block;
+    }
+
+    .navbar-title {
+      font-size: 0.85rem;
+      color: var(--jc-text-muted);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Page hero ── */
+    .hero {
+      background: var(--jc-navy);
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+      color: var(--jc-white);
+    }
+
+    .hero h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .hero p {
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 300;
+    }
+
+    /* ── Main content ── */
+    .main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--jc-white);
+      border-radius: 8px;
+      border: 1px solid var(--jc-border);
+      box-shadow: 0 2px 6px rgba(49,55,81,0.06);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--jc-teal);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--jc-teal-light);
+    }
+
+    /* ── Today highlight ── */
+    .today-box {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0.5rem 0;
+    }
+
+    .today-temp {
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--jc-teal);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .today-temp span {
+      font-size: 1.8rem;
+      font-weight: 300;
+      color: var(--jc-navy-muted);
+    }
+
+    .today-badge {
+      display: inline-block;
+      background: var(--jc-purple);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+      margin-bottom: 0.35rem;
+    }
+
+    .today-meta {
+      font-size: 0.88rem;
+      color: var(--jc-text-muted);
+      line-height: 1.7;
+    }
+
+    .today-meta strong {
+      display: block;
+      color: var(--jc-navy);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* ── Chart ── */
+    .chart-wrap {
+      position: relative;
+      height: 220px;
+    }
+
+    canvas { width: 100% !important; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 0.55rem 0.75rem;
+      background: var(--jc-teal-light);
+      color: var(--jc-teal-dark);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 2px solid var(--jc-teal);
+    }
+
+    tbody tr { transition: background 0.12s; }
+    tbody tr:nth-child(even) { background: #f4f6f8; }
+    tbody tr:hover { background: var(--jc-teal-light); }
+
+    tbody td {
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--jc-border);
+      color: var(--jc-text);
+    }
+
+    tbody tr.today-row td {
+      font-weight: 700;
+      color: var(--jc-teal-dark);
+      background: var(--jc-teal-light);
+    }
+
+    .temp-pill {
+      display: inline-block;
+      background: var(--jc-teal);
+      color: white;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 99px;
+    }
+
+    tbody tr.today-row .temp-pill {
+      background: var(--jc-purple);
+    }
+
+    .today-tag {
+      display: inline-block;
+      background: var(--jc-purple);
+      color: white;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.1rem 0.45rem;
+      border-radius: 99px;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+
+    /* ── No data state ── */
+    .no-data {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--jc-text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .no-data code {
+      background: var(--jc-teal-light);
+      color: var(--jc-teal-dark);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      color: var(--jc-text-muted);
+      font-size: 0.78rem;
+      margin-top: 0.5rem;
+      padding-bottom: 1rem;
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.75rem;
+      padding: 0.45rem 1.2rem;
+      background: var(--jc-teal);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: "Open Sans", sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .refresh-btn:hover {
+      background: var(--jc-teal-dark);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top accent bar -->
+<div class="topbar"></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-logo">
+    <img src="https://www.jobcloud.ch/wp-content/uploads/2020/02/jobcloude-logo.svg" alt="JobCloud" />
+  </div>
+  <div class="navbar-title">Wetter-Dashboard</div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>Wetter Göttingen</h1>
+  <p>Vorhergesagte Temperatur um 12:00 Uhr &mdash; letzte 7 Tage</p>
+</div>
+
+<!-- Content -->
+<div class="main">
+
+  <!-- Today card -->
+  <div class="card" id="today-card">
+    <div class="card-label">Heute</div>
+    <div id="today-content" class="no-data">Keine Daten vorhanden. Bitte <code>weather_agent.py</code> ausführen.</div>
+  </div>
+
+  <!-- Chart card -->
+  <div class="card">
+    <div class="card-label">Verlauf (7 Tage)</div>
+    <div class="chart-wrap">
+      <canvas id="tempChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Table card -->
+  <div class="card">
+    <div class="card-label">Übersicht</div>
+    <div id="table-wrap"></div>
+  </div>
+
+  <footer>
+    Quelle: Open-Meteo API &nbsp;&middot;&nbsp; Daten gespeichert in weather_log.json
+    <br>
+    <button class="refresh-btn" onclick="location.reload()">&#8635; Aktualisieren</button>
+  </footer>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+  fetch("weather_log.json")
+    .then(r => {
+      if (!r.ok) throw new Error("weather_log.json not found");
+      return r.json();
+    })
+    .then(entries => {
+      if (!entries || entries.length === 0) return;
+
+      const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date));
+      const today  = sorted[sorted.length - 1];
+
+      // ── Today highlight ──
+      document.getElementById("today-content").innerHTML = `
+        <div class="today-box">
+          <div class="today-temp">${today.temperature_noon.toFixed(1)}<span>&nbsp;°C</span></div>
+          <div class="today-meta">
+            <span class="today-badge">Heute</span>
+            <strong>${today.date_label}</strong>
+            Prognose für 12:00 Uhr<br>
+            Abgerufen um ${today.recorded_at} Uhr
+          </div>
+        </div>`;
+
+      // ── Chart ──
+      const labels = sorted.map(e => e.date_label);
+      const temps  = sorted.map(e => e.temperature_noon);
+
+      const ctx = document.getElementById("tempChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Temperatur 12:00 Uhr (°C)",
+            data: temps,
+            borderColor: "#00829a",
+            backgroundColor: "rgba(0,130,154,0.08)",
+            pointBackgroundColor: "#00829a",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointHoverBackgroundColor: "#93559e",
+            fill: true,
+            tension: 0.35,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#313751",
+              titleColor: "rgba(255,255,255,0.7)",
+              bodyColor: "#ffffff",
+              bodyFont: { weight: "700", size: 14 },
+              padding: 10,
+              cornerRadius: 6,
+              callbacks: {
+                label: ctx => ` ${ctx.parsed.y.toFixed(1)} °C`
+              }
+            }
+          },
+          scales: {
+            y: {
+              title: { display: true, text: "°C", color: "#93559e", font: { weight: "600" } },
+              grid: { color: "#e8eaed" },
+              ticks: { color: "rgba(49,55,81,0.55)", font: { size: 11 } }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: "rgba(49,55,81,0.55)", font: { size: 11 } }
+            }
+          }
+        }
+      });
+
+      // ── Table ──
+      const todayDate = today.date;
+      const rows = sorted.slice().reverse().map(e => `
+        <tr class="${e.date === todayDate ? "today-row" : ""}">
+          <td>
+            ${e.date_label}
+            ${e.date === todayDate ? '<span class="today-tag">Heute</span>' : ""}
+          </td>
+          <td><span class="temp-pill">${e.temperature_noon.toFixed(1)} °C</span></td>
+          <td>${e.recorded_at} Uhr</td>
+        </tr>`).join("");
+
+      document.getElementById("table-wrap").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Temperatur 12:00 Uhr</th>
+              <th>Abgerufen</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("today-content").innerHTML =
+        `<div class="no-data">
+          &#9888; <strong>weather_log.json nicht gefunden.</strong><br>
+          Bitte zuerst <code>python weather_agent.py</code> ausführen,<br>
+          dann diese Seite neu laden.
+        </div>`;
+    });
+</script>
+
+</body>
+</html>
