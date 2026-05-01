@@ -4,5 +4,11 @@
     "date_label": "23.04.2026",
     "temperature_noon": 13.4,
     "recorded_at": "13:55"
+  },
+  {
+    "date": "2026-05-01",
+    "date_label": "01.05.2026",
+    "temperature_noon": 18.2,
+    "recorded_at": "13:28"
   }
 ]
